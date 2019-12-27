@@ -24,13 +24,6 @@
  */
 package thestonedturtle.bankedexperience.components;
 
-import thestonedturtle.bankedexperience.BankedCalculator;
-import thestonedturtle.bankedexperience.components.combobox.ComboBoxIconEntry;
-import thestonedturtle.bankedexperience.components.combobox.ComboBoxIconListRenderer;
-import thestonedturtle.bankedexperience.data.Activity;
-import thestonedturtle.bankedexperience.data.BankedItem;
-import thestonedturtle.bankedexperience.data.ExperienceItem;
-import thestonedturtle.bankedexperience.data.ItemStack;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -56,8 +49,16 @@ import net.runelite.api.Constants;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.FontManager;
+import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.shadowlabel.JShadowedLabel;
 import net.runelite.client.util.AsyncBufferedImage;
+import thestonedturtle.bankedexperience.BankedCalculator;
+import thestonedturtle.bankedexperience.components.combobox.ComboBoxIconEntry;
+import thestonedturtle.bankedexperience.components.combobox.ComboBoxIconListRenderer;
+import thestonedturtle.bankedexperience.data.Activity;
+import thestonedturtle.bankedexperience.data.BankedItem;
+import thestonedturtle.bankedexperience.data.ExperienceItem;
+import thestonedturtle.bankedexperience.data.ItemStack;
 
 public class ModifyPanel extends JPanel
 {
@@ -240,10 +241,16 @@ public class ModifyPanel extends JPanel
 
 		final float xpFactor = this.calc.getXpFactor();
 
-		final List<Activity> activities = Activity.getByExperienceItem(bankedItem.getItem(), calc.getSkillLevel());
+		final int level = calc.getConfig().limitToCurrentLevel() ? calc.getSkillLevel() : -1;
+		final List<Activity> activities = Activity.getByExperienceItem(bankedItem.getItem(), level);
 		if (activities == null || activities.size() == 0)
 		{
-			adjustContainer.add(new JLabel("Unknown"));
+			final JLabel unusable = new JLabel("Unusable at current level");
+			unusable.setVerticalAlignment(JLabel.CENTER);
+			unusable.setHorizontalAlignment(JLabel.CENTER);
+
+			adjustContainer.removeAll();
+			adjustContainer.add(unusable, c);
 			return;
 		}
 		else if (activities.size() == 1)
@@ -267,7 +274,12 @@ public class ModifyPanel extends JPanel
 		else
 		{
 			final JComboBox<ComboBoxIconEntry> dropdown = new JComboBox<>();
+			dropdown.setFocusable(false); // To prevent an annoying "focus paint" effect
+			dropdown.setForeground(Color.WHITE);
+			dropdown.setBorder(new EmptyBorder(2, 0, 0, 0));
+
 			final ComboBoxIconListRenderer renderer = new ComboBoxIconListRenderer();
+			renderer.setPreferredSize(new Dimension(PluginPanel.PANEL_WIDTH, 40));
 			dropdown.setRenderer(renderer);
 
 			for (final Activity option : activities)
@@ -316,8 +328,14 @@ public class ModifyPanel extends JPanel
 			adjustContainer.add(dropdown, c);
 			c.gridy++;
 		}
+		
+		final Activity a = bankedItem.getItem().getSelectedActivity();
+		if (a == null)
+		{
+			return;
+		}
 
-		final ItemStack[] secondaries = bankedItem.getItem().getSelectedActivity().getSecondaries();
+		final ItemStack[] secondaries = a.getSecondaries();
 		if (secondaries.length > 0 && this.calc.getConfig().showSecondaries())
 		{
 			final JLabel secondaryLabel = new JLabel("Secondaries:");
