@@ -110,7 +110,8 @@ public enum Secondaries
 	 */
 	BOW_STRING(new ItemStack(ItemID.BOW_STRING, 1)),
 	FEATHER(new ItemStack(ItemID.FEATHER, 1)),
-	HEADLESS_ARROW(new ItemStack(ItemID.HEADLESS_ARROW, 1));
+	HEADLESS_ARROW(new ItemStack(ItemID.HEADLESS_ARROW, 1)),
+	;
 	private final ItemStack[] items;
 
 	Secondaries(ItemStack... items)
