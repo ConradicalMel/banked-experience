@@ -53,8 +53,11 @@ public class GridItem extends JLabel
 	private static final Color SELECTED_BACKGROUND = new Color(0, 70, 0);
 	private static final Color SELECTED_HOVER_BACKGROUND =  new Color(0, 100, 0);
 
-	private static final Color IGNORED_BACKGROUND = new Color(90, 0, 0);
-	private static final Color IGNORED_HOVER_BACKGROUND = new Color(120, 0, 0);
+	private static final Color IGNORED_BACKGROUND = new Color(90, 90, 0);
+	private static final Color IGNORED_HOVER_BACKGROUND = new Color(255, 170, 29);
+
+	private static final Color ZERO_ITEMS_BACKGROUND = new Color(90, 0, 0);
+	private static final Color ZERO_ITEMS_HOVER_BACKGROUND = new Color(120, 0, 0);
 
 	@Setter
 	private SelectionListener selectionListener;
@@ -137,12 +140,12 @@ public class GridItem extends JLabel
 
 	private Color getBackgroundColor()
 	{
-		return ignored ? IGNORED_BACKGROUND : (selected ? SELECTED_BACKGROUND : UNSELECTED_BACKGROUND);
+		return amount <= 0 ? ZERO_ITEMS_BACKGROUND : ignored ? IGNORED_BACKGROUND : (selected ? SELECTED_BACKGROUND : UNSELECTED_BACKGROUND);
 	}
 
 	private Color getHoverBackgroundColor()
 	{
-		return ignored ? IGNORED_HOVER_BACKGROUND : (selected ? SELECTED_HOVER_BACKGROUND : UNSELECTED_HOVER_BACKGROUND);
+		return amount <= 0 ? ZERO_ITEMS_HOVER_BACKGROUND : ignored ? IGNORED_HOVER_BACKGROUND : (selected ? SELECTED_HOVER_BACKGROUND : UNSELECTED_HOVER_BACKGROUND);
 	}
 
 	void select()

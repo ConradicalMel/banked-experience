@@ -24,7 +24,9 @@
  */
 package thestonedturtle.bankedexperience;
 
+import com.google.common.collect.Multimap;
 import java.awt.Color;
+import java.util.HashMap;
 import thestonedturtle.bankedexperience.components.combobox.ComboBoxIconEntry;
 import thestonedturtle.bankedexperience.components.combobox.ComboBoxIconListRenderer;
 import thestonedturtle.bankedexperience.components.textinput.UICalculatorInputArea;
@@ -44,15 +46,19 @@ import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.SkillIconManager;
 import net.runelite.client.ui.ColorScheme;
 import net.runelite.client.ui.PluginPanel;
+import thestonedturtle.bankedexperience.data.BankedItem;
+import thestonedturtle.bankedexperience.data.ExperienceItem;
 
 @Slf4j
 public class BankedCalculatorPanel extends PluginPanel
 {
+	private final BankedExperiencePlugin plugin;
 	private final BankedCalculator calculator;
 
-	public BankedCalculatorPanel(Client client, BankedExperienceConfig config, SkillIconManager skillIconManager, ItemManager itemManager)
+	public BankedCalculatorPanel(BankedExperiencePlugin plugin, Client client, BankedExperienceConfig config, SkillIconManager skillIconManager, ItemManager itemManager)
 	{
 		super();
+		this.plugin = plugin;
 
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		setLayout(new GridBagLayout());
@@ -64,7 +70,7 @@ public class BankedCalculatorPanel extends PluginPanel
 		inputs.getUiFieldTargetXP().setEditable(false);
 		inputs.getUiFieldTargetLevel().setEditable(false);
 
-		calculator = new BankedCalculator(inputs, client, config, itemManager);
+		calculator = new BankedCalculator(plugin, inputs, client, config, itemManager);
 
 		// Create the Skill dropdown with icons
 		final JComboBox<ComboBoxIconEntry> dropdown = new JComboBox<>();
@@ -109,8 +115,53 @@ public class BankedCalculatorPanel extends PluginPanel
 		add(calculator, c);
 	}
 
+	public Map<Integer, Integer> getBankMap()
+	{
+		return calculator.getBankMap();
+	}
+
 	public void setBankMap(final Map<Integer, Integer> bankMap)
 	{
 		calculator.setBankMap(bankMap);
+	}
+
+	public Map<Integer, Integer> getSeedVaultMap()
+	{
+		return calculator.getSeedVaultMap();
+	}
+
+	public void setSeedVaultMap(final Map<Integer, Integer> seedVaultMap)
+	{
+		calculator.setSeedVaultMap(seedVaultMap);
+	}
+
+	public Map<Integer, Integer> getAllOwnedItemsMap()
+	{
+		return calculator.getAllOwnedItemsMap();
+	}
+
+	public void setAllOwnedItemsMap(Map<Integer, Integer> allOwnedItemsMap)
+	{
+		calculator.setAllOwnedItemsMap(allOwnedItemsMap);
+	}
+
+	public Map<ExperienceItem, BankedItem> getBankedItemMap()
+	{
+		return calculator.getBankedItemMap();
+	}
+
+	public void setBankedItemMap(final Map<ExperienceItem, BankedItem> bankedItemMap)
+	{
+		calculator.setBankedItemMap(bankedItemMap);
+	}
+
+	public Multimap<ExperienceItem, BankedItem> getLinkedMap()
+	{
+		return calculator.getLinkedMap();
+	}
+
+	public void setLinkedMap(final Multimap<ExperienceItem, BankedItem> linkedMap)
+	{
+		calculator.setLinkedMap(linkedMap);
 	}
 }

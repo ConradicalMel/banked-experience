@@ -24,8 +24,9 @@
  */
 package thestonedturtle.bankedexperience.components;
 
-import thestonedturtle.bankedexperience.BankedCalculator;
-import thestonedturtle.bankedexperience.data.BankedItem;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -33,10 +34,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import lombok.Getter;
 import lombok.Setter;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.util.AsyncBufferedImage;
+import thestonedturtle.bankedexperience.BankedCalculator;
+import thestonedturtle.bankedexperience.data.BankedItem;
+import thestonedturtle.bankedexperience.data.ExperienceItem;
 
 /**
  * A grid that supports mouse events
@@ -101,10 +106,13 @@ public class SelectionGrid extends JPanel
 	{
 		this.removeAll();
 
-		final List<GridItem> items = panelMap.values().stream().filter(gi -> gi.getAmount() > 0).collect(Collectors.toList());
+		//final List<GridItem> items = panelMap.values().stream().filter(gi -> gi.getAmount() > 0).collect(Collectors.toList());
+		List<GridItem> items = panelMap.values().stream().collect(Collectors.toList());
+		Multimap<String, ExperienceItem> multimap = ArrayListMultimap.create();
+		items.forEach((index) -> multimap.put(index.getBankedItem().getItem().getCategory(), index.getBankedItem().getItem()));
 
-		// Calculates how many rows need to be display to fit all items
-		final int rowSize = ((items.size() % ITEMS_PER_ROW == 0) ? 0 : 1) + items.size() / ITEMS_PER_ROW;
+		 //Calculates how many rows need to be display to fit all items
+		int rowSize = ((items.size() % ITEMS_PER_ROW == 0) ? 0 : 1) + items.size() / ITEMS_PER_ROW;
 		setLayout(new GridLayout(rowSize, ITEMS_PER_ROW, 1, 1));
 
 		for (final GridItem gridItem : items)
@@ -115,7 +123,6 @@ public class SelectionGrid extends JPanel
 				gridItem.select();
 				selectedItem = gridItem.getBankedItem();
 			}
-
 			this.add(gridItem);
 		}
 	}

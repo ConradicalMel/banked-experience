@@ -68,6 +68,7 @@ public class BankedCalculator extends JPanel
 	public static final DecimalFormat XP_FORMAT_COMMA = new DecimalFormat("#,###.#");
 
 	private final Client client;
+	private final BankedExperiencePlugin plugin;
 	@Getter
 	private final BankedExperienceConfig config;
 	private final UICalculatorInputArea uiInput;
@@ -75,15 +76,30 @@ public class BankedCalculator extends JPanel
 
 	// Some activities output a ExperienceItem and may need to be included in the calculable qty
 	// Using multimap for cases where there are multiple items linked directly to one item, use recursion for otherwise
-	private final Multimap<ExperienceItem, BankedItem> linkedMap = ArrayListMultimap.create();
 
-	private final Map<ExperienceItem, BankedItem> bankedItemMap = new LinkedHashMap<>();
 	private final JLabel totalXpLabel = new JLabel();
 	private final ModifyPanel modifyPanel;
 	private SelectionGrid itemGrid;
 
+	@Getter
 	@Setter
 	private Map<Integer, Integer> bankMap = new HashMap<>();
+
+	@Getter
+	@Setter
+	private Map<Integer, Integer> seedVaultMap = new HashMap<>();
+
+	@Getter
+	@Setter
+	private Map<Integer, Integer> allOwnedItemsMap = new HashMap<>();
+
+	@Getter
+	@Setter
+	private Map<ExperienceItem, BankedItem> bankedItemMap = new LinkedHashMap<>();
+
+	@Getter
+	@Setter
+	private Multimap<ExperienceItem, BankedItem> linkedMap = ArrayListMultimap.create();
 
 	@Getter
 	private Skill currentSkill;
@@ -95,8 +111,9 @@ public class BankedCalculator extends JPanel
 	@Getter
 	private float xpFactor = 1.0f;
 
-	BankedCalculator(UICalculatorInputArea uiInput, Client client, BankedExperienceConfig config, ItemManager itemManager)
+	BankedCalculator(BankedExperiencePlugin plugin, UICalculatorInputArea uiInput, Client client, BankedExperienceConfig config, ItemManager itemManager)
 	{
+		this.plugin = plugin;
 		this.uiInput = uiInput;
 		this.client = client;
 		this.config = config;
@@ -122,7 +139,7 @@ public class BankedCalculator extends JPanel
 		removeAll();
 		xpFactor = 1.0f;
 
-		if (bankMap.size() <= 0)
+		if (allOwnedItemsMap.size() <= 0)
 		{
 			add(new JLabel( "Please visit a bank!", JLabel.CENTER));
 			revalidate();
@@ -204,14 +221,14 @@ public class BankedCalculator extends JPanel
 	private void recreateBankedItemMap()
 	{
 		bankedItemMap.clear();
-		linkedMap.clear();
+		//linkedMap.clear();
 
 		final Collection<ExperienceItem> items = ExperienceItem.getBySkill(currentSkill);
-		log.debug("Experience items for the {} Skill: {}", currentSkill.getName(), items);
+		log.info("Experience items for the {} Skill: {}", currentSkill.getName(), items);
 
 		for (final ExperienceItem item : items)
 		{
-			final BankedItem banked = new BankedItem(item, bankMap.getOrDefault(item.getItemID(), 0));
+			final BankedItem banked = new BankedItem(item, allOwnedItemsMap.getOrDefault(item.getItemID(), 0));
 			bankedItemMap.put(item, banked);
 
 			Activity a = item.getSelectedActivity();
@@ -234,8 +251,9 @@ public class BankedCalculator extends JPanel
 				linkedMap.put(a.getLinkedItem(), banked);
 			}
 		}
-		log.debug("Banked Item Map: {}", bankedItemMap);
-		log.debug("Linked Map: {}", linkedMap);
+		log.info("Banked Item Map: {}", bankedItemMap);
+		log.info("Linked Map: {}", linkedMap);
+		plugin.updateLinkedMap();
 	}
 
 	/**
@@ -469,6 +487,6 @@ public class BankedCalculator extends JPanel
 
 	public int getItemQtyFromBank(final int id)
 	{
-		return bankMap.getOrDefault(id, 0);
+		return allOwnedItemsMap.getOrDefault(id, 0);
 	}
 }

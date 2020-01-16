@@ -362,6 +362,22 @@ public enum ExperienceItem
 		return items;
 	}
 
+	public static Multimap<String, ExperienceItem> getBySkillAndCollection(Skill skill)
+	{
+		Collection<ExperienceItem> items = SKILL_MAP.get(skill);
+		if (items == null)
+		{
+			items = new ArrayList<>();
+		}
+
+		Multimap<String, ExperienceItem> multimap = ArrayListMultimap.create();
+		for (ExperienceItem item : items)
+		{
+			multimap.put(item.category, item);
+		}
+		return multimap;
+	}
+
 	public static ExperienceItem getByItemId(int id)
 	{
 		return ITEM_ID_MAP.get(id);
